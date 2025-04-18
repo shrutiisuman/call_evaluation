@@ -96,7 +96,7 @@ def generate_feedback_audio(text, base_name):
     tts.save(path)
     return filename
 
-st.title("Call Evaluation System")
+st.title("Call Evaluation System.")
 st.markdown("Upload a call recording and click 'Evaluate Call' to analyze it.")
 
 uploaded_file = st.file_uploader("Choose an audio file", type=["mp3", "wav", "m4a"])
