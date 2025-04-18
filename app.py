@@ -29,60 +29,59 @@ def evaluate_call(transcription):
     transcription_lower = transcription.lower()
     found_intents = []
 
-    try:
-        sentiment = TextBlob(transcription).sentiment.polarity
-    except:
-        sentiment = None
-        feedback.append("Sentiment analysis could not be performed on this transcription.")
-
-    if sentiment is not None:
-        if sentiment > 0.2:
-            tone = "positive"
-            score += 20
-            feedback.append("The overall tone was positive, which enhances customer experience.")
-        elif sentiment < -0.2:
-            tone = "rude"
-            feedback.append("The call was rude and might have left a negative impression on the customer.")
-        else:
-            tone = "neutral"
-            score += 10 if sentiment >= 0 else 5  # Slightly positive or neutral adds some points
-            feedback.append("The call tone was neutral. Consider adding more empathy and positivity.")
-    else:
-        tone = "unknown"
-
     greetings = ["hello", "good morning", "good afternoon", "good evening", "hi", "namaste"]
     if any(transcription_lower.startswith(greet) for greet in greetings):
         score += 20
-        feedback.append("The call started with a proper greeting.")
+        feedback.append("The call started with a proper greeting, which helps set a professional and friendly tone at the beginning of the conversation. This is important for establishing rapport quickly.")
     else:
-        feedback.append("The call lacked a professional greeting.")
+        feedback.append("The call did not start with a recognizable greeting. Starting with a professional greeting like 'Good morning' or 'Hello' helps in setting a positive tone from the beginning.")
 
     for intent, keywords in intent_keywords.items():
         if any(keyword in transcription_lower for keyword in keywords):
             found_intents.append(intent)
+
     if found_intents:
         score += 20
-        feedback.append(f"Identified intent(s): {', '.join(found_intents)}.")
+        feedback.append(f"The intent of the customer was successfully identified as related to: {', '.join(found_intents)}. This indicates active listening and understanding of the customer's needs.")
     else:
-        feedback.append("The intent of the customer was unclear.")
+        feedback.append("The call did not clearly identify the customer's intent. It's important to listen carefully and ask clarifying questions to fully understand their needs.")
 
     positives = ["thank you", "sure", "absolutely", "happy to help", "zarur", "dhanyavaad"]
     if any(word in transcription_lower for word in positives):
         score += 20
-        feedback.append("Used positive and helpful language.")
+        feedback.append("The use of positive and affirming language contributes to a better customer experience. It makes the interaction feel more supportive and professional.")
     else:
-        feedback.append("Positive language was missing.")
+        feedback.append("There was a lack of positive phrases. Using encouraging and polite language helps in building trust and comfort with the customer.")
 
-    if tone != "rude":
+    sentiment = TextBlob(transcription).sentiment.polarity
+    tone = "neutral"
+
+    if sentiment > 0.2:
+        score += 20
+        tone = "positive"
+        feedback.append("Overall tone of the conversation was positive, which is appreciated in customer interactions. Keep maintaining that friendly and enthusiastic tone.")
+    elif sentiment < -0.1:
+        tone = "rude"
+        feedback.append("The tone of the conversation appeared negative or rude. It's important to remain calm, courteous, and constructive even when faced with difficult situations.")
+    else:
+        score += 10
+        tone = "neutral"
+        feedback.append("The tone was neutral throughout the call. While this is acceptable, adding some warmth and positive affirmations could make the interaction more pleasant.")
+
+    if tone == "rude":
+        feedback.append("Since the tone was identified as rude, we are skipping the evaluation of the call closing as tone significantly affects the overall experience.")
+    else:
         if any(closing in transcription_lower for closing in ["thank you", "bye", "have a nice day", "shukriya", "alvida"]):
             score += 20
-            feedback.append("The call ended with a proper closing.")
+            feedback.append("The call ended with a proper closing, which leaves a good final impression. It's a small detail that reinforces professionalism and courtesy.")
         else:
-            feedback.append("The call lacked a polite closing.")
-    else:
-        feedback.append("Closing evaluation skipped due to negative tone.")
+            feedback.append("A closing statement was missing. Always end calls with a polite and clear farewell to leave a positive lasting impression.")
 
-    return min(score, 100), "\n\n".join(feedback)
+    if tone == "neutral":
+        feedback.append("Your tone was identified as neutral, so the impact of the ending was not considered in the final scoring. Consider being slightly more positive to boost customer satisfaction.")
+
+    summary = f"Tone detected: {tone.capitalize()}\n\n" + "\n\n".join(feedback)
+    return min(score, 100), summary
 
 def save_text_file(text, folder, base_name):
     filename = f"{base_name}.txt"
