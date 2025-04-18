@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Call Evaluation</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload a Call Recording</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept="audio/*" required>
+            <button type="submit">Evaluate Call</button>
+        </form>
+
+        {% if score %}
+        <div class="result">
+            <div class="score">Score: {{ score }}/100</div>
+
+            <div class="feedback">
+                <h3>Feedback:</h3>
+                <p>{{ feedback }}</p>
+            </div>
+
+            {% if audio_file %}
+            <audio controls>
+                <source src="{{ url_for('serve_audio', filename=audio_file) }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

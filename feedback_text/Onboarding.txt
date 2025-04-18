@@ -1,0 +1,9 @@
+The call did not start with a recognizable greeting. Consider starting with a professional greeting like 'Good morning' or 'Hello'.
+
+The intent of the customer was successfully identified as related to: refund, onboarding, support, billing.
+
+The use of positive and affirming language contributes to a better customer experience.
+
+The call ended with a proper closing, which leaves a good final impression.
+
+Overall tone of the conversation was positive, which is appreciated in customer interactions.
